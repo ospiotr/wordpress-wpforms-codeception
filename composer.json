@@ -1,0 +1,11 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "lucatume/wp-browser": "^4.2",
+        "codeception/module-asserts": "^3.0"
+    }
+}

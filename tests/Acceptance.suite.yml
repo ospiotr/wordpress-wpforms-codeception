@@ -1,0 +1,20 @@
+actor: AcceptanceTester
+bootstrap: _bootstrap.php
+modules:
+    enabled:
+        - lucatume\WPBrowser\Module\WPWebDriver
+        - \Codeception\Module\Asserts
+    config:
+        lucatume\WPBrowser\Module\WPWebDriver:
+            url: '%WORDPRESS_URL%'
+            adminUsername: '%WORDPRESS_ADMIN_USER%'
+            adminPassword: '%WORDPRESS_ADMIN_PASSWORD%'
+            adminPath: '/wp-admin'
+            browser: chrome
+            host: 'localhost'
+            port: '9515'
+            path: '/'
+            capabilities:
+              "goog:chromeOptions":
+                args:
+                  - "--disable-search-engine-choice-screen"

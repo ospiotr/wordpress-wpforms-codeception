@@ -1,0 +1,56 @@
+name: Run Codeception Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: curl, mbstring, openssl, pdo, pdo_sqlite
+          ini-values: |
+            memory_limit=-1
+            date.timezone='UTC'
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Set up ChromeDriver
+        uses: nanasess/setup-chromedriver@v2
+
+      - name: Specify port and run ChromeDriver in background
+        run: |
+          chromedriver --port=9515 &
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction --no-suggest
+
+      - name: Build Codeception tests
+        run: php vendor/bin/codecept build
+
+      - name: Run Codeception test Publish post and verify
+        env:
+          WORDPRESS_URL: ${{ secrets.WORDPRESS_URL }}
+          WORDPRESS_ADMIN_USER: ${{ secrets.WORDPRESS_ADMIN_USER }}
+          WORDPRESS_ADMIN_PASSWORD: ${{ secrets.WORDPRESS_ADMIN_PASSWORD }}
+        run: php vendor/bin/codecept run Acceptance PublishAndVerifyPostCest -vvv --html
+
+      - name: Run Codeception test Create contact form and send message
+        env:
+          WORDPRESS_URL: ${{ secrets.WORDPRESS_URL }}
+          WORDPRESS_ADMIN_USER: ${{ secrets.WORDPRESS_ADMIN_USER }}
+          WORDPRESS_ADMIN_PASSWORD: ${{ secrets.WORDPRESS_ADMIN_PASSWORD }}
+        run: php vendor/bin/codecept run Acceptance CreateContactFormAndSendMessageCest -vvv --html
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: tests/_output
